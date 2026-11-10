@@ -1,5 +1,5 @@
 import os
-import psycopg
+import psycopg # type: ignore
 
 
 def db_connection():

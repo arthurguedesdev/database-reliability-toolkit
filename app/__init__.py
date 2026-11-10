@@ -1,5 +1,5 @@
-from flask import Flask, jsonify
-import psycopg
+from flask import Flask, jsonify # type: ignore
+import psycopg # type: ignore
 from .db import db_connection
 
 
