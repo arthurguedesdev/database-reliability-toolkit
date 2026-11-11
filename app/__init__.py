@@ -1,15 +1,20 @@
 from flask import Flask, jsonify # type: ignore
 import psycopg # type: ignore
 from .db import db_connection
+from .routes.health import health_bp
+from .services.database_service import get_database_version
 
 
 def create_app():
     app = Flask(__name__)
 
+    app.register_blueprint(health_bp)
+
+    """"
     @app.get("/health/live")
     def live():
         return jsonify(status="alive")
-
+    """
     @app.get("/health/ready")
     def ready():
         try:
@@ -49,6 +54,25 @@ def create_app():
             with db_connection() as conn:
                 total = conn.execute("SELECT count(*) FROM public.orders").fetchone()[0]
             return jsonify(orders=total)
+        except psycopg.Error:
+            return jsonify(error="database_query_failed"), 503
+
+    """
+    @app.get("/api/v1/database/version")
+    def database_version():
+        try:
+            with db_connection() as conn:
+                version = conn.execute ("SELECT current_setting('server_version')").fetchone()[0]
+                return jsonify(version=version)
+        except psycopg.Error:
+            return jsonify(error="database_query_failed"), 503
+    """
+
+    @app.get("/api/v1/database/version")
+    def database_version():
+        try:
+            version = get_database_version()
+            return jsonify(version=version)
         except psycopg.Error:
             return jsonify(error="database_query_failed"), 503
 
