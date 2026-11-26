@@ -3,6 +3,7 @@ import psycopg # type: ignore
 from .db import db_connection
 from .routes.health import health_bp
 from .services.database_service import get_database_version
+from .services.database_service import get_database_connections
 
 
 def create_app():
@@ -73,6 +74,18 @@ def create_app():
         try:
             version = get_database_version()
             return jsonify(version=version)
+        except psycopg.Error:
+            return jsonify(error="database_query_failed"), 503
+
+    @app.get("/api/v1/database/connections")
+    def database_connections():
+        try:
+            connections = get_database_connections()
+            return jsonify(
+            database="drt_lab",
+            connections=connections
+        )
+
         except psycopg.Error:
             return jsonify(error="database_query_failed"), 503
 
